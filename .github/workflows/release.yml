@@ -1,0 +1,82 @@
+name: Builder
+
+# Per-satellite releaser (assets only): the JarvYZ dynamic-module IIFE + its
+# manifest + a pip-installable wheel. No standalone binaries (this satellite has
+# no standalone/ shell) — for those see yz-music's workflow.
+#
+# Lives in the satellite's OWN .github/ so it travels with the git-subtree split
+# into the standalone repo. INERT in the JarvYZ monorepo (Actions reads only the
+# repo-ROOT .github/); it activates once this folder is the split repo's root.
+#
+# Trigger: a push whose commit message starts with "Release " (subtree pushes
+# carry the monorepo commit message), or manual dispatch. Version flows from
+# pyproject.toml. Satellite-agnostic: the IIFE name + wheel are globbed, so this
+# exact file is shared verbatim across the asset-only satellites.
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    name: Build + Release (IIFE + wheel)
+    if: github.event_name == 'workflow_dispatch' || startsWith(github.event.head_commit.message, 'Release ')
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - uses: astral-sh/setup-uv@v5
+      - name: Read version from pyproject.toml
+        id: ver
+        run: echo "VERSION=$(grep -m1 -E '^version = ' pyproject.toml | sed -E 's/.*"(.*)".*/\1/')" >> "$GITHUB_OUTPUT"
+      - name: Sync manifest.json to that version
+        run: |
+          node -e "const fs=require('fs');const p='manifest.json';const m=JSON.parse(fs.readFileSync(p));m.version='${{ steps.ver.outputs.VERSION }}';fs.writeFileSync(p,JSON.stringify(m,null,2)+'\n')"
+      - name: npm ci
+        working-directory: ui
+        run: npm ci
+      - name: Build dynamic module (IIFE) + standalone SPA
+        working-directory: ui
+        run: |
+          npm run build:lib     # -> ui/dist-lib/<name>.iife.js
+          npm run build:pages   # -> bundled into the package for the wheel
+      - name: Build wheel
+        run: uv build --wheel --out-dir dist-wheel
+      - name: Stage release assets
+        id: stage
+        run: |
+          V="${{ steps.ver.outputs.VERSION }}"
+          IIFE="$(ls ui/dist-lib/*.iife.js | head -1)"
+          BASE="$(basename "$IIFE" .iife.js)"
+          mkdir -p out
+          cp "$IIFE"        "out/${BASE}_${V}.iife.js"
+          cp manifest.json  "out/${BASE}_${V}.manifest.json"
+          cp dist-wheel/*.whl out/
+          ls -l out/
+      - name: Generate changelog
+        run: |
+          V="${{ steps.ver.outputs.VERSION }}"
+          NAME="$(grep -m1 -E '^name = ' pyproject.toml | sed -E 's/.*"(.*)".*/\1/')"
+          echo "## ${NAME} v${V}" > changelog.md
+          echo "" >> changelog.md
+          PREV=$(git describe --tags --abbrev=0 "HEAD^" 2>/dev/null || true)
+          if [ -n "$PREV" ]; then
+            git log --pretty=format:"- %s (%h)" "${PREV}..HEAD" >> changelog.md
+          else
+            git log --pretty=format:"- %s (%h)" -n 20 >> changelog.md
+          fi
+      - name: Create / update Release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: v${{ steps.ver.outputs.VERSION }}
+          name: v${{ steps.ver.outputs.VERSION }}
+          body_path: changelog.md
+          files: out/*
