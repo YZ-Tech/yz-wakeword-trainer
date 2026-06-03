@@ -1,0 +1,16 @@
+{
+  "id": "wakeword-trainer",
+  "name": "Wake Word Trainer",
+  "version": "0.0.1",
+  "enabled": true,
+  "nav": {
+    "label": "Wake Word Trainer",
+    "icon": "model_training",
+    "to": "/wakeword-trainer"
+  },
+  "dashboards": [],
+  "exports": [
+    { "id": "WakeWordTab", "type": "component" }
+  ],
+  "settings": {}
+}

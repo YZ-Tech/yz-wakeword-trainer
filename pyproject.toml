@@ -1,0 +1,72 @@
+[project]
+name = "yz-wakeword-trainer"  # dist name; import package is "yz_wakeword_trainer"
+version = "0.0.1"
+description = "Standalone openWakeWord training service. HTTP-API satellite — runs alone, optional JarvYZ integration."
+requires-python = ">=3.10,<3.13"
+license = { text = "MIT" }
+dependencies = [
+    "fastapi>=0.110.0",
+    "uvicorn[standard]>=0.27.0",
+    "pydantic>=2.5.0",
+    "openwakeword>=0.6.0",
+    # piper-tts 1.4+ (piper1-gpl): publishes a Windows wheel + has
+    # espeak-ng baked in — replaces the unbuildable-on-Windows
+    # `piper-phonemize` blocker. We use its Python API to generate
+    # positive/negative training clips natively on any platform.
+    "piper-tts>=1.4.0",
+    "torch>=2.4.0",
+    "torchaudio>=2.4.0",
+    "torchinfo>=1.8.0",
+    "torchmetrics>=1.0.0",
+    "audiomentations>=0.35.0",
+    "torch-audiomentations>=0.12.0",
+    "speechbrain>=1.0.0",
+    "mutagen>=1.47.0",
+    "acoustics>=0.2.6",
+    "pronouncing>=0.3.0",
+    "pyyaml>=6.0",
+    # onnx is needed by openwakeword.train's final `oww.export_model`
+    # step (torch.onnx.export with FunctionProto support). Upstream OWW
+    # imports it lazily inside the export so it's not pulled by their
+    # own deps; we make it explicit here so a fresh satellite install
+    # can train + save end-to-end without a follow-up `pip install onnx`.
+    "onnx>=1.16.0",
+    # Audio capture for /record/* — absorbs the legacy
+    # tools/wakeword/record_room.py into the satellite. soundfile is
+    # already pulled in transitively by audiomentations/torchaudio.
+    "sounddevice>=0.5.0",
+    "soundfile>=0.12.0",
+]
+
+[project.scripts]
+wakeword-trainer = "yz_wakeword_trainer.__main__:main"
+
+[project.optional-dependencies]
+dev = ["pytest>=7.0", "httpx>=0.25", "ruff>=0.4"]
+
+[tool.uv.sources]
+torch = { index = "pytorch-cu124" }
+torchaudio = { index = "pytorch-cu124" }
+
+[[tool.uv.index]]
+name = "pytorch-cu124"
+url = "https://download.pytorch.org/whl/cu124"
+explicit = true
+
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools.packages.find]
+include = ["yz_wakeword_trainer*"]
+
+# Ship the bundled SPA assets so a `pip install yz-wakeword-trainer`
+# user gets a working UI at http://127.0.0.1:9001/ — no separate npm
+# build needed at install time. Built by `cd ui && npm run build:pages`
+# BEFORE wheel build; vite outputs into yz_wakeword_trainer/static/.
+# `python -m build` will then include those files in the wheel.
+[tool.setuptools.package-data]
+yz_wakeword_trainer = [
+    "static/*",
+    "static/**/*",
+]
