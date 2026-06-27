@@ -143,7 +143,7 @@ wheel will be UI-less.)
 
 Captures 16 kHz mono PCM in 30 s chunks into `<wakeword_root>/corpora/backgrounds/loom_room/`.
 Device picking: explicit name/index via `device`, else read from `~/.jarvyz/settings.json`'s
-`audio.input_device`, else PortAudio default. Implementation in [core/record.py](wakeword_trainer/core/record.py)
+`audio.input_device`, else PortAudio default. Implementation in [core/record.py](yz_wakeword_trainer/core/record.py)
 — absorbed from the legacy `tools/wakeword/record_room.py` so the satellite owns its own capture path.
 
 ### Corpora (downloads)
