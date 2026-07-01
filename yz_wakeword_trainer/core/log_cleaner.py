@@ -7,7 +7,8 @@ with ▶/✓ markers; collapses tqdm progress to one row per section.
 Pure function (no I/O). Called per /jobs/{id}/log request. Cheap enough on
 the typical ~5-10 KB tail payload that no caching is needed.
 
-Ported verbatim from web/api/wakeword_dev.py — this is its new home.
+Ported from JarvYZ's web/api/wakeword_dev.py (since retired in the 2026-07-01
+gateway collapse) — this is its home now.
 """
 from __future__ import annotations
 

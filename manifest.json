@@ -10,9 +10,13 @@
   },
   "dashboards": [],
   "exports": [
-    { "id": "WakeWordTab", "type": "component" }
+    {
+      "id": "WakeWordTab",
+      "type": "component"
+    }
   ],
   "service": {
+    "url": "http://127.0.0.1:9001",
     "settingPath": "wake.trainer_url",
     "spawnModule": "yz_wakeword_trainer",
     "autoSpawnSettingPath": "wake.trainer_auto_spawn",
@@ -22,9 +26,17 @@
       "timeoutS": 30
     },
     "events": {
-      "channels": ["wakeword_state"],
+      "channels": [
+        "wakeword_state"
+      ],
       "path": "/events"
     }
   },
-  "settings": {}
+  "settings": {},
+  "requires": {
+    "network": "setup",
+    "sensors": [
+      "mic"
+    ]
+  }
 }

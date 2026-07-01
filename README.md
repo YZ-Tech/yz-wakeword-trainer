@@ -166,8 +166,10 @@ Device picking: explicit name/index via `device`, else read from `~/.jarvyz/sett
 
 ## Use with JarvYZ
 
-JarvYZ's `web/api/wakeword_dev.py` is a thin adapter that forwards to this satellite.
-Configure via `wakeword.trainer_url` (default `http://127.0.0.1:9001`).
+JarvYZ reaches this satellite through its generic gateway proxy — `/api/wakeword-trainer/*`
+straight-strips to the routes above — while the wake detection + deploy seam (model
+enumeration, deploy, deployed overlay) lives in JarvYZ's `web/api/wake.py`.
+Configure via `wake.trainer_url` (default `http://127.0.0.1:9001`).
 
 When `trainer_url` is localhost AND the satellite isn't running, JarvYZ will auto-spawn
 it. When it's remote, JarvYZ surfaces a clear "unreachable" error.
