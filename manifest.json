@@ -1,7 +1,7 @@
 {
   "id": "wakeword-trainer",
   "name": "Wake Word Trainer",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "enabled": true,
   "nav": {
     "label": "Wake Word Trainer",
@@ -12,5 +12,19 @@
   "exports": [
     { "id": "WakeWordTab", "type": "component" }
   ],
+  "service": {
+    "settingPath": "wake.trainer_url",
+    "spawnModule": "yz_wakeword_trainer",
+    "autoSpawnSettingPath": "wake.trainer_auto_spawn",
+    "proxy": {
+      "prefix": "/api/wakeword-trainer",
+      "graceS": 30,
+      "timeoutS": 30
+    },
+    "events": {
+      "channels": ["wakeword_state"],
+      "path": "/events"
+    }
+  },
   "settings": {}
 }

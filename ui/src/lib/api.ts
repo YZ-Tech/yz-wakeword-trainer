@@ -5,7 +5,7 @@
 // decouples the module from any specific server's path scheme.
 //
 // Adapters shipped with the module:
-//   - createJarvYZApi()    — wraps JarvYZ's /api/wakeword_dev/* namespace
+//   - createJarvYZApi()    — wraps JarvYZ's /api/wakeword-trainer/* namespace
 //   - createSatelliteApi() — Phase 2: wraps satellite native routes
 //
 // A host can also write its own adapter that implements WakeWordApi.
@@ -164,7 +164,7 @@ export const ApiContext = createContext<WakeWordApi>(NO_API)
 export const useApi = () => useContext(ApiContext)
 
 // ---------------------------------------------------------------------------
-// JarvYZ adapter — wraps /api/wakeword_dev/* paths via fetch.
+// JarvYZ adapter — wraps /api/wakeword-trainer/* paths via fetch.
 // Both JarvYZ-embedded mode and (Phase 1) the standalone SPA use this.
 // Phase 2: a satellite-native adapter that calls /train, /models, etc.
 
@@ -320,4 +320,4 @@ export function createSatelliteApi({ apiBase = '' }: { apiBase?: string } = {}):
 // previously exported a `createJarvYZApi()` here for symmetry, but it was
 // dead code — never imported by any consumer. Removed 2026-05-30. If a
 // future third-party host needs one, it's ~80 LOC of HTTP wrappers
-// against /api/wakeword_dev/* paths.
+// against /api/wakeword-trainer/* paths.

@@ -58,7 +58,7 @@ export interface ModelView {
   training_history?: TrainingRun[]
 }
 
-/** /api/wakeword_dev/status response shape (post multi-model refactor). */
+/** /api/wakeword-trainer/status response shape (post multi-model refactor). */
 export interface WakewordStatus {
   models: ModelView[]
   train: { running: boolean; cmd: string; slug: string }

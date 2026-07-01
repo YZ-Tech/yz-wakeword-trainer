@@ -340,6 +340,34 @@ async def corpora_progress(ws: WebSocket) -> None:
         _corpora_subs.discard(q)
 
 
+@app.websocket("/events")
+async def events_ws(ws: WebSocket) -> None:
+    """Unified event stream for JarvYZ's generic satellite event bridge
+    (`satellite_events._bridge_loop`). Re-frames every corpora-progress
+    snapshot as a `wakeword_state` event so the core bus — and thus the
+    embedded trainer UI — refreshes `/status` live during downloads.
+
+    This replaces the bespoke per-route WS bridge that used to live in
+    JarvYZ's `wakeword_dev_satellite.py`. The payload is intentionally
+    minimal: the UI refetches `/status` on any `wakeword_state`, and the
+    satellite's own `/status` already carries the fresh corpora block, so
+    there's nothing to marshal through the event itself. Standalone UIs
+    keep using `/corpora/progress` directly; this endpoint exists purely
+    for the JarvYZ bridge's one-WS-per-satellite contract."""
+    await ws.accept()
+    await ws.send_json({"kind": "hello"})
+    q: asyncio.Queue[dict] = asyncio.Queue(maxsize=32)
+    _corpora_subs.add(q)
+    try:
+        while True:
+            await q.get()  # a corpora snapshot changed
+            await ws.send_json({"event": "wakeword_state", "kind": "corpora"})
+    except WebSocketDisconnect:
+        pass
+    finally:
+        _corpora_subs.discard(q)
+
+
 # ─────────────────────── models — create / clone / download ───────────────
 
 

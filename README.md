@@ -24,7 +24,7 @@
 [![TypeScript](https://img.shields.io/badge/x-TypeScript-blue.svg?logo=typescript&logoColor=white&label=)](https://www.typescriptlang.org/)
 [![PyTorch](https://img.shields.io/badge/x-PyTorch-blue.svg?logo=pytorch&logoColor=white&label=)](https://pytorch.org/)
 
-**Run** `python -m yz_wakeword_trainer` &nbsp;·&nbsp; **API** `/api/wakeword_dev/*`
+**Run** `python -m yz_wakeword_trainer` &nbsp;·&nbsp; **API** `/api/wakeword-trainer/*`
 
 <!-- ───────────────────────────────────────────────────────────────────────── -->
 
