@@ -24,12 +24,22 @@ const libConfig: UserConfig = {
       formats: ['iife'],
       fileName: () => 'yz-wakeword-trainer.iife.js',
     },
+    // CJS require shim — same gotcha music/people hit. Bundled CJS deps can do
+    // a literal `require("react")` at runtime (e.g. zustand v5 via
+    // `use-sync-external-store`). No such dep here today, but every satellite
+    // IIFE carries the banner so adding one later can't silently break.
     rollupOptions: {
       external: ['react', 'react-dom'],
       output: {
         globals: { react: 'React', 'react-dom': 'ReactDOM' },
         exports: 'named',
         extend: true,
+        banner:
+          'var require = function(id) {' +
+          ' if (id === "react") return window.React;' +
+          ' if (id === "react-dom") return window.ReactDOM;' +
+          ' throw new Error("require not handled: " + id);' +
+          ' };',
       },
     },
   },
