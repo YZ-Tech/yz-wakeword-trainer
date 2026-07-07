@@ -16,7 +16,7 @@ test('standalone SPA loads + header strip renders', async ({ page }) => {
   // it. Asserting by src also proves the public/logo.svg is being
   // served by FastAPI StaticFiles.
   await expect(page.locator('header img[src="/logo.svg"]')).toBeVisible()
-  await expect(page.getByText('Wake-word trainer')).toBeVisible()
+  await expect(page.getByText('Wakeword Trainer')).toBeVisible()
   await expect(page.getByText(/satellite · standalone/i)).toBeVisible()
 })
 

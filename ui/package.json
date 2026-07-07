@@ -3,7 +3,7 @@
   "private": true,
   "version": "0.0.2",
   "type": "module",
-  "description": "Wake-word trainer UI — shipped as react-dynamic-module IIFE for JarvYZ, also buildable as a standalone SPA.",
+  "description": "Wakeword Trainer UI — shipped as react-dynamic-module IIFE for JarvYZ, also buildable as a standalone SPA.",
   "scripts": {
     "dev": "vite",
     "build:lib": "vite build --mode lib",

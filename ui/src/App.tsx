@@ -48,7 +48,7 @@ function StandaloneHeader() {
       <img src="/logo.svg" alt="" width={32} height={32} style={{ display: 'block' }} />
       <div style={{ display: 'flex', flexDirection: 'column' }}>
         <strong style={{ fontSize: '1.05rem', letterSpacing: '0.02em' }}>
-          Wake-word trainer
+          Wakeword Trainer
         </strong>
         <span style={{ fontSize: '0.75rem', opacity: 0.55 }}>satellite · standalone</span>
       </div>

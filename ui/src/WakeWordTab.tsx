@@ -106,7 +106,7 @@ function WakeWordTabInner() {
         >
           {error ? (
             <Typography variant="body2" color="error.main">
-              Wake-word trainer unreachable — {error}
+              Wakeword Trainer unreachable — {error}
             </Typography>
           ) : (
             <>

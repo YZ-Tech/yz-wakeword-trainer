@@ -1,4 +1,4 @@
-# Wake-word trainer UI
+# Wakeword Trainer UI
 
 The wake-word trainer's React UI, extracted as a standalone Vite project so
 the same source ships as:
