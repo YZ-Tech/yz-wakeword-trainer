@@ -23,10 +23,15 @@ from .settings import settings
 
 
 def main() -> None:
+    import os
+
+    # YZ_PORT = the port core resolved (settings.ports override) — wins over
+    # this satellite's own settings/env so the bind always matches the
+    # client URL; JWT_PORT + persistent settings serve standalone runs.
     uvicorn.run(
         "yz_wakeword_trainer.server:app",
         host=settings.host,
-        port=settings.port,
+        port=int(os.environ.get("YZ_PORT") or settings.port),
         log_level=settings.log_level,
     )
 
