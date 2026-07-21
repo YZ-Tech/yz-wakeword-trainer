@@ -23,35 +23,35 @@ from . import __version__
 from .core import corpora, persistent_settings, spike, state, trainer
 from .settings import settings
 
-app = FastAPI(
-    title="wakeword-trainer",
-    version=__version__,
-    description="Satellite: openWakeWord training as a service.",
-)
-
-
-@app.on_event("startup")
-async def _start_reaper() -> None:
-    """Background task that watches the active job and harvests metrics
-    when its subprocess exits. Idempotent — safe across restarts (state
-    on disk)."""
+@asynccontextmanager
+async def _lifespan(_app: FastAPI):
+    # was three @app.on_event("startup") hooks — deprecated in favor of
+    # lifespan. Order preserved: reaper -> orphan-metric recovery -> loop stash.
+    #
+    # Reaper: background task that watches the active job and harvests
+    # metrics when its subprocess exits. Idempotent — state on disk.
     asyncio.create_task(trainer.reaper_loop())
-
-
-@app.on_event("startup")
-async def _recover_orphan_metrics() -> None:
-    """Sweep for ONNX files newer than their training_history row and
-    parse metrics from OWW's `training_metrics.log` to fill the gap.
-    Defensive — covers the failure window between ONNX-export and reaper
-    that opened on 2026-05-28 when the satellite died right after a
-    successful train. Synchronous + cheap (one file stat + one regex
-    per slug); runs once on every boot."""
+    # Orphan sweep: ONNX newer than its training_history row -> parse
+    # training_metrics.log to fill the gap (failure window between
+    # ONNX-export and reaper, 2026-05-28). Cheap; runs once per boot.
     try:
         recovered = trainer.recover_metrics_all()
         if recovered:
             print(f"[startup] recovered orphan metrics for: {recovered}")
     except Exception as e:  # noqa: BLE001
         print(f"[startup] metric recovery skipped: {e}")
+    # Stash the running loop so corpora worker threads can marshal
+    # snapshot pushes back onto it.
+    _capture_loop()
+    yield
+
+
+app = FastAPI(
+    title="wakeword-trainer",
+    version=__version__,
+    description="Satellite: openWakeWord training as a service.",
+    lifespan=_lifespan,
+)
 
 
 # ─────────────────────── request/response models ──────────────────────────
@@ -232,11 +232,6 @@ def _capture_loop() -> None:
     threads (off-loop) can schedule snapshot pushes onto it."""
     global _corpora_loop
     _corpora_loop = asyncio.get_running_loop()
-
-
-@app.on_event("startup")
-async def _on_startup() -> None:
-    _capture_loop()
 
 
 def _emit_corpora_snapshot() -> None:

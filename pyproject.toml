@@ -1,6 +1,6 @@
 [project]
 name = "yz-wakeword-trainer"  # dist name; import package is "yz_wakeword_trainer"
-version = "0.0.5"
+version = "0.0.6"
 description = "Standalone openWakeWord training service. HTTP-API satellite — runs alone, optional JarvYZ integration."
 requires-python = ">=3.10,<3.13"
 license = { text = "MIT" }
